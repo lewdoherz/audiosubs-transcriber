@@ -7,7 +7,7 @@ for fully offline translation.
 
 ## Features
 
-- Transcribe single audio files (`.mp3`, `.m4b`, `.wav`) or an entire folder of them
+- Transcribe single audio files (`.mp3`, `.m4a`, `.m4b`, `.wav`) or an entire folder of them
 - Model selection: `tiny` (fastest) through `large-v3` (most accurate)
 - CUDA GPU or CPU device modes with selectable compute types (`float16`, `int8`, `float32`)
 - Translate to 28 languages, all offline after a one-time model download

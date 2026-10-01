@@ -22,7 +22,12 @@ from faster_whisper import WhisperModel
 
 # App identity. APP_VERSION is bumped on every released iteration.
 APP_NAME = "AudioSubs Transcriber"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
+
+# Accepted audio inputs. faster-whisper decodes through PyAV, which handles all of
+# these containers/codecs (MP4/AAC .m4a and .m4b, MP3, WAV) without extra tooling.
+AUDIO_EXTENSIONS = (".mp3", ".m4a", ".m4b", ".wav")
+AUDIO_FILE_FILTER = "Audio Files (" + " ".join(f"*{ext}" for ext in AUDIO_EXTENSIONS) + ")"
 
 # argostranslate provides fully offline machine translation. Language packs are
 # downloaded once (small, a few dozen MB each) and cached for later offline use.
@@ -77,7 +82,7 @@ HELP_TEXT = f"""{APP_NAME} v{APP_VERSION}
 Offline transcription + machine translation to .srt subtitles.
 
 HOW TO USE
-- Browse a single audio file (.mp3, .m4b, .wav) or a whole folder. Each audio file
+- Browse a single audio file (.mp3, .m4a, .m4b, .wav) or a whole folder. Each audio file
   produces its own .srt subtitle file, saved next to the source.
 - Pick a model: larger models are slower but more accurate (tiny ... large-v3).
 - Device: 'auto' uses a CUDA GPU when available and falls back to CPU.
@@ -374,7 +379,7 @@ class TranscribeWindow(QMainWindow):
             self.combine_checkbox.setChecked(False)
 
     def select_single_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", "Audio Files (*.mp3 *.m4b *.wav)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open Audio File", "", AUDIO_FILE_FILTER)
         if file_name:
             self.audio_paths = [file_name]
             self.file_label.setText(os.path.basename(file_name))
@@ -385,10 +390,9 @@ class TranscribeWindow(QMainWindow):
     def select_folder(self):
         dir_path = QFileDialog.getExistingDirectory(self, "Select Folder Containing Audiobooks")
         if dir_path:
-            supported_extensions = (".mp3", ".m4b", ".wav")
             found_files = [
                 os.path.join(dir_path, f) for f in os.listdir(dir_path)
-                if f.lower().endswith(supported_extensions)
+                if f.lower().endswith(AUDIO_EXTENSIONS)
             ]
 
             if found_files:
